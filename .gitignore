@@ -1,2 +1,68 @@
-*workspace
+# Ignore Docker-related files
+*.log
+*.pid
+*.seed
+*.bak
+*.swp
+*.tmp
+
+# Ignore Docker Compose override files
+docker-compose.override.yml
+docker-compose.override.*.yml
+
+# Ignore environment files
+.env
+.env.*
+
+# Ignore SSL/TLS certificates
+certs/*
+!certs/.gitkeep
+
+nginx/ssl/*
+!nginx/ssl/.gitkeep
+
+# Ignore data directories (keys, db, cache, etc.)
+data/*
+db/*
+redis/*
+postgres/*
+nextcloud/*
+hbbs/*
+hbbr/*
+notify_push/*
+turn/*
+nats/*
+spreedbackend/*
+janus/*
+!*/.gitkeep
+
+# Node / frontend related
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python related
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pytest_cache/
+*.coverage
+*.mypy_cache/
+.venv/
+env/
+venv/
+
+# IDEs and editors
+.idea/
+.vscode/
+*.code-workspace
+*.workspace
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Git itself
 .git
