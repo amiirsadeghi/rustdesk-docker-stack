@@ -13,8 +13,8 @@ RustDesk is an open‑source, cross‑platform remote desktop solution and a pri
 * 🧰 One‑command bring‑up with Docker Compose
 * 🔐 Automatic server keypair generation and persistence
 * 🌐 Works on LAN or public Internet (NAT traversal supported)
+* 📄 Built‑in Nginx landing page for end‑user instructions
 * 📈 Optional container logging snippet (e.g., Splunk)
-* 🚦 Clear firewall/port guidance
 
 ---
 
@@ -22,8 +22,7 @@ RustDesk is an open‑source, cross‑platform remote desktop solution and a pri
 
 * **hbbs** – ID/Signal server (registration, heartbeat, NAT test, TCP hole punching)
 * **hbbr** – Relay server (forwards traffic when direct connection fails)
-
-> Optional: Reverse proxy (e.g., Nginx) if you plan to expose web clients; otherwise direct ports are fine.
+* **nginx** – Serves a landing page with configuration instructions (edit `nginx/html/index.html`)
 
 ---
 
@@ -44,11 +43,11 @@ git clone https://github.com/amiirsadeghi/rustdesk-docker-stack.git
 cd rustdesk-docker-stack
 ```
 
-### 2) Adjust configuration (if needed)
+### 2) Adjust configuration
 
 * Confirm the data volume in `docker-compose.yml` (by default `./data:/root`).
-* (Optional) Set environment variables (e.g., `ALWAYS_USE_RELAY=Y`).
-* Ensure firewall/NAT rules for the ports below.
+* Edit **`nginx/html/index.html`** to replace placeholders (`your-company`, `your-domain.url`) with your real company name, domain, and paste your **public key**.
+* (Optional) Add your company logo to `nginx/html/` and reference it in `index.html`.
 
 ### 3) Bring the stack up
 
@@ -56,27 +55,25 @@ cd rustdesk-docker-stack
 docker compose up -d
 ```
 
-This starts **hbbs** and **hbbr**. On **first run**, RustDesk generates an Ed25519 keypair in your mounted **data** directory.
+This starts **hbbs**, **hbbr**, and **nginx**. On **first run**, RustDesk generates an Ed25519 keypair in your mounted **data** directory.
 
 ### 4) Locate the server keys
-
-The keypair is persisted to your host under the mapped data path. With the default mapping:
 
 ```
 ./data/id_ed25519       # private key (keep safe!)
 ./data/id_ed25519.pub   # public key (share with clients)
 ```
 
-> If you changed the volume mapping, check that folder for `id_ed25519` and `id_ed25519.pub`.
-
 ### 5) Grab the public key
 
 ```bash
-# Print the public key so you can copy/paste it into clients
 cat ./data/id_ed25519.pub
 ```
 
-> Do **not** share `id_ed25519` (private key). Keep it backed up; this identity is what clients pin to.
+Copy this content and paste it into:
+
+* Your landing page (`index.html`)
+* Each client’s **Key** field
 
 ### 6) Point clients at your server
 
@@ -89,10 +86,8 @@ On each RustDesk client:
 3. (Recommended) Fill **Relay Server** (default port `21117`):
 
    * Example: `rustdesk.example.com` or `rustdesk.example.com:21117`
-4. Paste the content of your **public key** (`id_ed25519.pub`) into the **Key** field.
-5. Save/Apply. (If running as a service, you may need to restart the RustDesk service.)
-
-You’re done. Clients will now use your self‑hosted infrastructure.
+4. Paste the content of your **public key** into the **Key** field.
+5. Save/Apply.
 
 ---
 
@@ -108,7 +103,38 @@ Open these on your server and forward from your router if hosting publicly:
 | **hbbr**  | 21117   | TCP      | Relay services                                |
 |           | 21119   | TCP      | Web client support (optional)                 |
 
-> If you don’t need **web clients**, you can omit `21118`/`21119`. Make sure **UDP 21116** is allowed; it’s required for registration/heartbeats.
+---
+
+## Nginx Landing Page
+
+This stack includes an **Nginx container** serving a landing page on your domain (e.g., `https://your-domain.url`).
+
+* The page is at: `./nginx/html/index.html`
+* Edit the file to set:
+
+  * **Company name**
+  * **Domain name**
+  * **Public key** (`id_ed25519.pub`)
+* Employees can visit this page, copy the public key, and follow the instructions.
+
+Example `index.html` snippet:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Your Company Remote Access</title>
+</head>
+<body>
+  <h1>Welcome to YourCompany RustDesk</h1>
+  <p>ID Server: rustdesk.your-domain.url:21116</p>
+  <p>Relay Server: rustdesk.your-domain.url:21117</p>
+  <p>Public Key:</p>
+  <pre>PASTE_YOUR_PUBLIC_KEY_HERE</pre>
+  <p>Follow these steps in RustDesk client settings to connect.</p>
+</body>
+</html>
+```
 
 ---
 
@@ -117,101 +143,24 @@ Open these on your server and forward from your router if hosting publicly:
 ```
 rustdesk-docker-stack/
 ├─ docker-compose.yml        # Main stack
-├─ data/                     # Persisted data (keys, etc.)
-│  ├─ id_ed25519             # Private key (keep safe; back it up)
-│  └─ id_ed25519.pub         # Public key (distribute to clients)
+├─ data/                     # Persisted data (keys)
+│  ├─ id_ed25519             # Private key (keep safe)
+│  └─ id_ed25519.pub         # Public key (distribute)
+├─ nginx/
+│  ├─ html/index.html        # Landing page (edit placeholders)
+│  ├─ ssl/                   # Place your SSL certs here
+│  └─ nginx.conf             # Reverse proxy config
 └─ README.md
 ```
 
 ---
 
-## Environment Hints
-
-You can pass environment variables to **hbbs**/**hbbr** in your compose file. Common examples:
-
-```yaml
-services:
-  hbbs:
-    image: rustdesk/rustdesk-server:latest
-    environment:
-      - ALWAYS_USE_RELAY=Y   # force all traffic through hbbr
-    command: hbbs
-    volumes:
-      - ./data:/root
-    network_mode: host
-    depends_on: [hbbr]
-    restart: unless-stopped
-
-  hbbr:
-    image: rustdesk/rustdesk-server:latest
-    command: hbbr
-    volumes:
-      - ./data:/root
-    network_mode: host
-    restart: unless-stopped
-```
-
-> Keep `./data` persistent so your server identity (keys) remains stable across restarts/upgrades.
-
----
-
-## Optional: Container Logging (e.g., Splunk)
-
-Add a logging block per‑service if you forward logs to a collector:
-
-```yaml
-logging:
-  driver: splunk
-  options:
-    splunk-token: "YOUR_TOKEN"
-    splunk-url: "https://splunk.example.com:8088"
-    splunk-index: "docker"
-    splunk-sourcetype: "rustdesk"
-```
-
----
-
-## Operations
-
-### View status & logs
-
-```bash
-docker compose ps
-docker compose logs -f hbbs
-docker compose logs -f hbbr
-```
-
-### Backup keys (recommended)
-
-```bash
-# Stop containers first if you like, then back up the private key
-cp ./data/id_ed25519 ./backups/id_ed25519.$(date +%F)
-```
-
-> Moving to a new host? Copy both `id_ed25519` and `id_ed25519.pub` into the new server’s data directory before starting containers to preserve identity.
-
----
-
 ## Troubleshooting
 
-* **Clients connect without asking for a Key**: ensure clients actually set the **Key** from your `id_ed25519.pub`. (Key pinning protects against MITM.)
-* **Registration fails**: verify **UDP 21116** is open and forwarded correctly; confirm firewall isn’t blocking it.
-* **Relay not used / connection drops**: make sure **TCP 21117** is reachable from clients; consider `ALWAYS_USE_RELAY=Y` for strict routing via relay.
-* **Key mismatch**: distribute the latest `id_ed25519.pub` to clients. If you rotated keys, all clients must update the **Key** field.
-* **Fresh keys**: delete `./data/id_ed25519*` and restart the stack (clients will need the new public key).
-
----
-
-## FAQ
-
-**Where do I find the public key?**
-In your mapped data directory (default `./data/id_ed25519.pub`). Copy its entire content into the **Key** field on clients.
-
-**Will my key change on updates?**
-No — as long as the **data volume is persistent**. If you delete the `id_ed25519` files, a new keypair is generated.
-
-**Do I need Nginx/SSL?**
-Not for native clients. If you plan to support **web clients**, also open 21118/21119 and consider a reverse proxy/TLS in front.
+* **Clients connect without asking for a Key**: ensure clients set the **Key** from your `id_ed25519.pub`.
+* **Registration fails**: verify **UDP 21116** is open.
+* **Relay not used / connection drops**: ensure **TCP 21117** is reachable.
+* **Key mismatch**: update clients with the latest `id_ed25519.pub`.
 
 ---
 
