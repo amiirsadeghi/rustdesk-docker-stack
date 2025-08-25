@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>remote.etadbir.com</title>
+  <title>your-domain-url</title>
   <style>
     :root { --bg:#0b1223; --card:#0f172a; --text:#e5e7eb; --muted:#9ca3af; --accent:#22c55e; --border:#1f2937; }
     * { box-sizing:border-box; }
@@ -27,14 +27,13 @@
 <body>
   <header>
     <div class="bar">
-      <!-- لوگو را با نام logo.png کنار همین فایل قرار دهید -->
-      <img src="logo.png" class="logo" alt="Tadbir Pardaz" />
+      <img src="logo.png" class="logo" alt="company name" />
     </div>
   </header>
 
   <div class="wrap">
     <div class="card">
-      <h2>مراحل اتصال سریع به سامانه پشتیبانی شرکت تدبیرپرداز</h2>
+      <h2>مراحل اتصال سریع به سامانه پشتیبانی اسم شرکت شما</h2>
 
       <ol>
         <li>
@@ -50,7 +49,7 @@
       </ol>
 
       <div class="row">
-        <div id="host" class="pill">remote.etadbir.com</div>
+        <div id="host" class="pill">your-domain-url</div>
         <button class="btn" data-copy="host">کپی دامنه</button>
       </div>
 
@@ -59,7 +58,7 @@
       </ol>
 
       <div class="row">
-        <div id="key" class="pill">Vzmcd3dh5uQ1VnPbotTauV61BCgFV+5AAsJSMXuzKNw=</div>
+        <div id="key" class="pill">public key that rustdesk gerenrated</div>
         <button class="btn" data-copy="key">کپی کلید</button>
       </div>
 
@@ -68,11 +67,10 @@
       </ol>
     </div>
 
-    <footer>© remote.etadbir.com — RustDesk private server</footer>
+    <footer>© your-domain-url — RustDesk private server</footer>
   </div>
 
   <script>
-    // Copy-to-clipboard with feedback
     document.querySelectorAll('.btn[data-copy]').forEach(btn=>{
       btn.addEventListener('click', ()=>{
         const id = btn.getAttribute('data-copy');
