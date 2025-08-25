@@ -1,0 +1,47 @@
+services:
+  hbbr:
+    image: rustdesk/rustdesk-server:1.1.14
+    container_name: hbbr
+    command: hbbr
+    volumes:
+      - ./data:/root
+    networks: [rustdesk]
+    restart: unless-stopped
+
+  hbbs:
+    image: rustdesk/rustdesk-server:1.1.14
+    container_name: hbbs
+    command: hbbs -r hbbr:21117
+    volumes:
+      - ./data:/root
+    networks: [rustdesk]
+    depends_on:
+      - hbbr
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:stable
+    container_name: rustdesk-nginx
+    depends_on:
+      - hbbs
+      - hbbr
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ./nginx/html:/usr/share/nginx/html:ro
+  
+    ports:
+      - "80:80"
+      - "443:443"
+      - "21115:21115/tcp"
+      - "21116:21116/tcp"
+      - "21116:21116/udp"
+      - "21117:21117/tcp"
+      - "21118:21118/tcp"
+      - "21119:21119/tcp"
+    networks: [rustdesk]
+    restart: unless-stopped
+
+networks:
+  rustdesk:
+    driver: bridge

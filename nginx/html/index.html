@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>remote.etadbir.com</title>
+  <style>
+    :root { --bg:#0b1223; --card:#0f172a; --text:#e5e7eb; --muted:#9ca3af; --accent:#22c55e; --border:#1f2937; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family: Vazirmatn, IRANSans, Segoe UI, Roboto, sans-serif; background:linear-gradient(160deg,#0b1223,#0a0f1e); color:var(--text); }
+    .wrap { max-width:900px; margin:48px auto; padding:0 16px; }
+    header { position:sticky; top:0; backdrop-filter:saturate(1.2) blur(6px); background:rgba(11,18,35,.35); border-bottom:1px solid var(--border); }
+    .bar { max-width:900px; margin:0 auto; padding:10px 16px; display:flex; align-items:center; justify-content:flex-start; gap:12px; }
+    .logo { height:44px; width:auto; object-fit:contain; }
+    .card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:24px; box-shadow:0 10px 30px rgba(0,0,0,.25); }
+    h2 { margin:0 0 10px 0; font-size:22px; }
+    .sub{ color:var(--muted); margin:0 0 20px 0; }
+    ol{ line-height:1.95; margin:0 0 18px 22px; }
+    .row{ display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin:10px 0 18px 0; }
+    .pill{ background:#0b1223; padding:10px 14px; border:1px solid var(--border); border-radius:12px; direction:ltr; font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .btn{ cursor:pointer; border:none; padding:10px 16px; border-radius:12px; background:var(--accent); color:#052e16; font-weight:700; }
+    .btn-link{ display:inline-block; text-decoration:none; background:var(--accent); color:#052e16; padding:12px 18px; border-radius:12px; font-weight:800; }
+    footer{ text-align:center; color:#7f8ea3; margin:18px 0 28px; font-size:13px; }
+    .gap-sm{ gap:8px }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="bar">
+      <!-- لوگو را با نام logo.png کنار همین فایل قرار دهید -->
+      <img src="logo.png" class="logo" alt="Tadbir Pardaz" />
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="card">
+      <h2>مراحل اتصال سریع به سامانه پشتیبانی شرکت تدبیرپرداز</h2>
+
+      <ol>
+        <li>
+          برنامهٔ RustDesk را دانلود و نصب کنید:
+          <div class="row gap-sm" style="margin-top:10px">
+            <a class="btn-link" href="/rustdesk-1.4.1.exe" download>دانلود برای ویندوز (EXE)</a>
+            <a class="btn-link" href="/rustdesk-1.4.1.apk" download>دانلود برای اندروید (APK)</a>
+          </div>
+        </li>
+        <li>برنامهٔ RustDesk را باز کنید و به <b>Settings → Network</b> بروید.</li>
+        <li>گزینهٔ <b>ID/Relay server</b> را <b>انتخاب</b> کنید.</li>
+        <li>در کادرهای <b>ID server</b> و <b>Relay server</b> مقدار زیر را وارد کنید:</li>
+      </ol>
+
+      <div class="row">
+        <div id="host" class="pill">remote.etadbir.com</div>
+        <button class="btn" data-copy="host">کپی دامنه</button>
+      </div>
+
+      <ol start="5">
+        <li>در کادر <em>Key</em> کلید زیر را دقیقاً Paste کنید و روی <b>OK</b> بزنید:</li>
+      </ol>
+
+      <div class="row">
+        <div id="key" class="pill">Vzmcd3dh5uQ1VnPbotTauV61BCgFV+5AAsJSMXuzKNw=</div>
+        <button class="btn" data-copy="key">کپی کلید</button>
+      </div>
+
+      <ol start="6">
+        <li>به تب <b>Home</b> برگردید و در پایین برنامه وضعیت <b>Ready</b> را مشاهده کنید.</li>
+      </ol>
+    </div>
+
+    <footer>© remote.etadbir.com — RustDesk private server</footer>
+  </div>
+
+  <script>
+    // Copy-to-clipboard with feedback
+    document.querySelectorAll('.btn[data-copy]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const id = btn.getAttribute('data-copy');
+        const val = document.getElementById(id).innerText.trim();
+        navigator.clipboard.writeText(val).then(()=>{
+          const label = btn.innerText;
+          btn.innerText = 'کپی شد ✓';
+          setTimeout(()=>btn.innerText = label, 1300);
+        });
+      });
+    });
+  </script>
+</body>
+</html>
